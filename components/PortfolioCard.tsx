@@ -1,4 +1,5 @@
 "use client";
+import { aesEncrypt } from "@/lib/aes";
 import { usePageStore } from "@/store/page";
 import { Portfolio } from "@/types";
 import Image from "next/image";
@@ -13,8 +14,10 @@ export function PortfolioCard({ portfolio }: Props) {
   const currentPage = usePageStore((state) => state.page);
 
   const onClickPortfolio = () => {
+    const id = encodeURIComponent(aesEncrypt(portfolio.id.toString()));
     if (portfolio.id)
-      router.push(`/item?page=${currentPage}&id=${portfolio.id}`);
+      // router.push(`/item?page=${currentPage}&id=${portfolio.id}`);
+      router.push(`/item?page=${currentPage}&id=${id}`);
   };
 
   return (

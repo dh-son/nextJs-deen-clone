@@ -5,6 +5,7 @@ import { GoChevronUp } from "react-icons/go";
 import { GoChevronDown } from "react-icons/go";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { aesDecrypt, aesEncrypt } from "@/lib/aes";
 
 export default async function Item({
   searchParams,
@@ -12,10 +13,14 @@ export default async function Item({
   searchParams: Promise<{ page: string; id: string }>;
 }) {
   const { page, id } = await searchParams;
-  const currentId = Number(id);
+  const currentId = Number(aesDecrypt(decodeURIComponent(id)));
   const item = await getPortfoliosById(currentId);
   const prevItem = await getPortfoliosById(currentId - 1);
   const nextItem = await getPortfoliosById(currentId + 1);
+
+  const getAseEncrypt = (id: number) => {
+    return encodeURIComponent(aesEncrypt(id.toString()));
+  };
 
   return (
     <section className="w-full">
@@ -76,51 +81,29 @@ export default async function Item({
         </article>
 
         <article className="mt-8 text-red-900 text-sm">
-          {!prevItem && nextItem && (
+          {nextItem && (
             <div className="w-full flex flex-row items-center px-3 py-3 border-b">
               <GoChevronUp size={24} color="oklch(0.396 0.141 25.723)" />
               <div className="pl-8">
-                <Link href={`/item/?id=${nextItem.id}`}>
+                <Link href={`/item/?id=${getAseEncrypt(nextItem.id)}`}>
                   {nextItem.title} | {nextItem.name}
                 </Link>
               </div>
             </div>
           )}
-
-          {prevItem && !nextItem && (
+          {prevItem && (
             <div className="w-full flex flex-row items-center px-3 py-3 border-b">
               <GoChevronDown size={24} color="oklch(0.396 0.141 25.723)" />
               <div className="pl-8">
-                <Link href={`/item/?id=${prevItem.id}`}>
+                <Link href={`/item/?id=${getAseEncrypt(prevItem.id)}`}>
                   {prevItem.title} | {prevItem.name}
                 </Link>
               </div>
             </div>
           )}
-
-          {prevItem &&
-            nextItem && (
-              <div className="w-full flex flex-row items-center px-3 py-3 border-y">
-                <GoChevronUp size={24} color="oklch(0.396 0.141 25.723)" />
-                <div className="pl-8">
-                  <Link href={`/item/?id=${nextItem.id}`}>
-                    {nextItem.title} | {nextItem.name}
-                  </Link>
-                </div>
-              </div>
-            ) && (
-              <div className="w-full flex flex-row items-center px-3 py-3 border-b">
-                <GoChevronDown size={24} color="oklch(0.396 0.141 25.723)" />
-                <div className="pl-8">
-                  <Link href={`/item/?id=${prevItem.id}`}>
-                    {prevItem.title} | {prevItem.name}
-                  </Link>
-                </div>
-              </div>
-            )}
         </article>
 
-        <article className="pt-2.5">
+        <article className="pt-2.5 px-3 lg:px-0">
           <Button className="bg-red-900 text-white w-20 cursor-pointer hover:bg-red-900 hover:opacity-45">
             <Link href={`/portfolio/?page=${page}`}>목록</Link>
           </Button>
